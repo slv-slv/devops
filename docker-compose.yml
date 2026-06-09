@@ -17,10 +17,12 @@ services:
 
     #   - пробросить порт наружу на 15432 (внешний выбран так, чтобы не конфликтовать
     #     с локально установленным Postgres)
-    ports: '15432:5432'
+    ports:
+      - '15432:5432'
 
     #   - персистить данные через NAMED VOLUME (не bind-mount); имя тома — pgdata
-    volumes: pgdata:/var/lib/postgresql/data
+    volumes:
+      - pgdata:/var/lib/postgresql/data
 
     #   - добавить проверку готовности: запрос к самой БД через pg_isready,
     #     с использованием POSTGRES_USER и POSTGRES_DB
@@ -46,7 +48,8 @@ services:
     env_file: .env.development.back
 
     #   - пробросить порт API на 13000
-    ports: '13000:3000'
+    ports:
+      - '13000:3000'
 
     #   - выразить зависимость от базы: back не должен стартовать, пока БД не
     #     ответит на healthcheck успешно (используй подходящую condition)
@@ -57,14 +60,16 @@ services:
     #   - примонтировать локальную папку с runtime-конфигом внутрь контейнера
     #     по пути /app/config; делаем это READ-ONLY, чтобы контейнер физически
     #     не мог изменить файл на хосте
-    volumes: ./app-config:/app/config:ro
+    volumes:
+      - ./app-config:/app/config:ro
 
   front:
     #   - указать образ из своего Docker Hub репозитория
     image: ${DOCKERHUB_USERNAME}/todo-front:${IMAGE_TAG}
 
     #   - пробросить 80-й порт nginx наружу на 18080
-    ports: '18080:80'
+    ports:
+      - '18080:80'
 
     #   - выразить зависимость от back, но НЕ через service_healthy:
     #     у back в этом задании нет healthcheck, поэтому здесь нужна другая condition
