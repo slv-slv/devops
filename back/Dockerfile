@@ -11,7 +11,7 @@ RUN npm ci
 COPY . .
 #   - Run the production build (compile TS into dist/)
 RUN npm run build
-RUN npm prune --omit-dev
+RUN npm prune --omit=dev
 
 
 # ---- Stage 2: runtime ----
