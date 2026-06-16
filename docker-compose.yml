@@ -11,6 +11,7 @@ services:
   db:
     #   - указать готовый образ postgres 16-alpine
     image: postgres:16-alpine
+    restart: unless-stopped
 
     #   - подать переменные окружения из соответствующего env-файла
     env_file: .env.development.db
@@ -42,6 +43,7 @@ services:
     #   - указать образ, который ты публикуешь в свой Docker Hub репозиторий
     #     (используй переменные DOCKERHUB_USERNAME и IMAGE_TAG)
     image: ${DOCKERHUB_USERNAME}/todo-back:${IMAGE_TAG}
+    restart: unless-stopped
 
     #   - подать переменные окружения из соответствующего env-файла
     #     (не забудь: в нём DB_HOST теперь смотрит на service-name из compose-сети)
@@ -66,6 +68,7 @@ services:
   front:
     #   - указать образ из своего Docker Hub репозитория
     image: ${DOCKERHUB_USERNAME}/todo-front:${IMAGE_TAG}
+    restart: unless-stopped
 
     #   - пробросить 80-й порт nginx наружу на 18080
     ports:
