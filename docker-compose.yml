@@ -16,10 +16,8 @@ services:
     #   - подать переменные окружения из соответствующего env-файла
     env_file: .env.development.db
 
-    #   - пробросить порт наружу на 15432 (внешний выбран так, чтобы не конфликтовать
-    #     с локально установленным Postgres)
-    ports:
-      - '15432:5432'
+    networks:
+      - internal
 
     #   - персистить данные через NAMED VOLUME (не bind-mount); имя тома — pgdata
     volumes:
@@ -65,6 +63,10 @@ services:
     volumes:
       - ./app-config:/app/config:ro
 
+    networks:
+      - public
+      - internal
+
   front:
     #   - указать образ из своего Docker Hub репозитория
     image: ${DOCKERHUB_USERNAME}/todo-front:${IMAGE_TAG}
@@ -80,6 +82,14 @@ services:
     depends_on:
       back:
         condition: service_started
+
+    networks:
+      - public
+
+networks:
+  public:
+  # Обычная bridge-сеть: название internal не отключает доступ в интернет.
+  internal:
 
 volumes:
   #   - объявить том, имя которого ты указал в сервисе db (без дополнительных опций,
