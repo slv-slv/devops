@@ -54,6 +54,9 @@ pull: ## Скачать образы с Docker Hub (НЕ собирать лок
 up: ## Поднять стек в фоне (compose сам соблюдёт depends_on/healthcheck)
 	docker compose --env-file .env.development.compose up -d
 
+recreate:
+	docker compose --env-file .env.development.compose up -d --force-recreate
+
 down: ## Погасить стек, named volume pgdata сохраняется
 	docker compose --env-file .env.development.compose down
 
