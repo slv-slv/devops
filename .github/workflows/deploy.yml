@@ -71,13 +71,20 @@ jobs:
     steps:
       - name: Deploy to server
         uses: appleboy/ssh-action@v1.0.3
+        # Вариант через env + envs: задаём APP_VERSION в окружении GitHub Actions.
+        # env: { APP_VERSION: "sha-${{ github.sha }}" }
         with:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
+          # Передаём APP_VERSION из окружения runner'а в удалённый SSH-скрипт.
+          # envs: APP_VERSION
           script: |
             set -eu
             cd ~/myapp
+
+            # Вариант через export: задаём APP_VERSION непосредственно в удалённом shell.
+            # export APP_VERSION="sha-${{ github.sha }}"
 
             sed -i "s|^APP_VERSION=.*|APP_VERSION=sha-${{ github.sha }}|" .env.development.compose
 

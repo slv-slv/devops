@@ -13,10 +13,10 @@
 #     явного 127.0.0.1 = порт виден снаружи на публичном IP.
 #   - наружу через системный nginx + TLS выставляется ТОЛЬКО Grafana
 #     (subdomain grafana.<твой-домен>); остальное смотрится через SSH-туннель.
-#   - сети явно не объявляем: сервисы автоматически попадают в общий
-#     project-default-network (обычно `myapp_default`), где уже живут
-#     db/back/front из основного docker-compose.yml. Именно за счёт этого
-#     Prometheus видит `back:3000` и Promtail — Docker socket.
+#   - все сервисы observability подключаются к сети `monitoring`, объявленной
+#     в основном docker-compose.yml. В этой же сети находится back, поэтому
+#     Prometheus видит `back:3000`, но monitoring-контейнеры не видят БД.
+#     Promtail читает Docker socket и файлы логов через bind-mount'ы.
 
 services:
   prometheus:
@@ -30,6 +30,8 @@ services:
     command:
       - '--config.file=/etc/prometheus/prometheus.yml'
       - '--storage.tsdb.retention.time=15d'
+    networks:
+      - monitoring
     restart: unless-stopped
 
   node-exporter:
@@ -44,6 +46,8 @@ services:
       - '--path.procfs=/host/proc'
       - '--path.sysfs=/host/sys'
       - '--collector.filesystem.mount-points-exclude=^/(sys|proc|dev|host|etc)($$|/)'
+    networks:
+      - monitoring
     restart: unless-stopped
 
   grafana:
@@ -60,6 +64,8 @@ services:
     depends_on:
       - prometheus
       - loki
+    networks:
+      - monitoring
     restart: unless-stopped
 
   loki:
@@ -71,6 +77,8 @@ services:
       - ./monitoring/loki-config.yaml:/etc/loki/local-config.yaml:ro
       - loki_data:/loki
     command: -config.file=/etc/loki/local-config.yaml
+    networks:
+      - monitoring
     restart: unless-stopped
 
   promtail:
@@ -84,6 +92,8 @@ services:
     privileged: true
     depends_on:
       - loki
+    networks:
+      - monitoring
     restart: unless-stopped
 
 volumes:
