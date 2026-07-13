@@ -60,6 +60,11 @@ jobs:
           docker push $IMAGE_SHA
           docker push $IMAGE_LATEST
 
+  # Альтернативы для деплоя:
+  #   docker/build-push-action — собрать и запушить образ; деплой потом отдельным шагом.
+  #   easingthemes/ssh-deploy@main — другой популярный action, специально для синка файлов через rsync.
+  #   webfactory/ssh-agent@v0.9.0 — поднимает ssh-agent на runner'е; дальше можно делать любые ssh/git push команды.
+
   deploy:
     needs: build
     runs-on: ubuntu-latest
@@ -92,6 +97,12 @@ jobs:
           # vars.VITE_API_URL у нас вида https://домен/api → отрежем /api
           export E2E_BASE_URL="${E2E_BASE_URL%/api}"
           bash scripts/smoke.sh
+
+  # Альтернатива — использовать готовый action с встроенной поддержкой:
+  # Например, dawidd6/action-send-mail, archive/github-actions-slack, и подобные часто имеют параметр if-failure или сами включают if: always() внутри.
+
+  # Альтернатива ${{ needs.checks.result }} — ${{ job.status }}:
+  # Это статус текущего job'а, не зависимого. Полезно когда уведомление шлёт сам deploy-job, а не отдельный notify
 
   notify:
     needs: [checks, build, deploy, verify]
